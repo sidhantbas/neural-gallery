@@ -4,7 +4,7 @@ import gsap from 'gsap';
 
 export function PhaseText({ phase, active, position }) {
   const { label, period, title, lines, color } = phase;
-  const allStrings = [label, `${period}  //  ${title}`, ...lines];
+  const allStrings = [label, title, ...lines];
   const [counts, setCounts] = useState(() => allStrings.map(() => 0));
   const tlRef = useRef(null);
 
