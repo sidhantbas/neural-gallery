@@ -1,14 +1,14 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom, DepthOfField } from '@react-three/postprocessing';
 import { ChromaticAberrationEffect } from 'postprocessing';
 import { useSnapScroll }  from './hooks/useSnapScroll';
 import { useDiveState }   from './hooks/useDiveState';
+import { useViewport }    from './hooks/useViewport';
 import { CameraRig }      from './components/CameraRig';
 import { SceneContent }   from './components/SceneContent';
 import { DiveScene }      from './components/DiveScene';
-import { CMSPanel }       from './components/CMSPanel';
-import { PHASES, deriveLayout, createDefaultPhase } from './data/phases';
+import { PHASES, deriveLayout } from './data/phases';
 import * as THREE from 'three';
 
 // Singleton CA effect so we can hand a ref to CameraRig
@@ -18,34 +18,18 @@ const caEffect = new ChromaticAberrationEffect({
 });
 
 export default function App() {
-  const [phases, setPhases]   = useState(PHASES);
+  const phases                 = PHASES;
   const [diving, setDiving]   = useState(false);
   const { index, goTo }       = useSnapScroll(phases.length, diving);
   const dofRef                = useRef();
   const caRef                 = useRef(caEffect);
+  const { isMobile }          = useViewport();
 
   const { nodePositions, cameraConfigs } = deriveLayout(phases);
 
   const { beatIndex, enter, exit } = useDiveState(phases, index, diving, setDiving);
 
-  // ── Phase actions ──────────────────────────────────────────────
-  function updatePhase(id, patch) {
-    setPhases(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
-  }
-  function addPhase() {
-    setPhases(prev => [...prev, createDefaultPhase(prev)]);
-  }
-  function deletePhase(id) {
-    setPhases(prev => {
-      const next = prev.filter(p => p.id !== id);
-      goTo(Math.min(index, next.length - 1));
-      return next;
-    });
-  }
-
-
-  const actions = { updatePhase, addPhase, deletePhase };
-  const phase   = phases[index];
+  const phase = phases[index];
 
   return (
     <div style={{ width:'100vw', height:'100vh', background:'#050505', overflow:'hidden', position:'relative' }}>
@@ -105,8 +89,8 @@ export default function App() {
         </EffectComposer>
       </Canvas>
 
-      {/* Nav dots — hidden while diving */}
-      {!diving && (
+      {/* Nav dots — hidden while diving or on mobile */}
+      {!diving && !isMobile && (
         <div style={{ position:'fixed', right:24, top:'50%', transform:'translateY(-50%)', display:'flex', flexDirection:'column', gap:12, zIndex:100 }}>
           {phases.map((p, i) => (
             <button key={p.id} onClick={() => goTo(i)} style={{
@@ -139,7 +123,7 @@ export default function App() {
           </div>
           <div style={{
             fontFamily:'"JetBrains Mono","Fira Code",monospace',
-            fontSize:9, letterSpacing:'0.2em', color:'rgba(255,255,255,0.25)',
+            fontSize: isMobile ? 8 : 9, letterSpacing:'0.2em', color:'rgba(255,255,255,0.25)',
           }}>
             SCROLL TO ADVANCE · ESC TO EXIT
           </div>
@@ -164,8 +148,6 @@ export default function App() {
           [ ESC ] EXIT
         </button>
       )}
-
-      <CMSPanel phases={phases} actions={actions} currentIndex={index} goTo={goTo} />
     </div>
   );
 }
