@@ -10,7 +10,7 @@ const _curLook = new THREE.Vector3(0, 0, 0);
 // then re-positions inside the AI visualization space
 const DIVE_OFFSET = new THREE.Vector3(0, 0, 4.5); // inside the visualization
 
-export function CameraRig({ phaseIndex, cameraConfigs, dofRef, caRef, diving, nodePositions }) {
+export function CameraRig({ phaseIndex, cameraConfigs, dofRef, caRef, diving, nodePositions, isMobile }) {
   const { camera, mouse } = useThree();
   const prevDiving = useRef(false);
   const plungeProgress = useRef(0);
@@ -32,12 +32,14 @@ export function CameraRig({ phaseIndex, cameraConfigs, dofRef, caRef, diving, no
 
     if (!diving) {
       // ── Orbit mode ───────────────────────────────────────────────
-      _pos.set(...cfg.position);
+      const zExtra = isMobile ? 4.5 : 0; // pull back on mobile so scene fits
+      _pos.set(cfg.position[0], cfg.position[1], cfg.position[2] + zExtra);
       _look.set(...cfg.lookAt);
 
-      camera.position.x += (cfg.position[0] + mouse.x * 0.3 - camera.position.x) * a;
-      camera.position.y += (cfg.position[1] + mouse.y * 0.2 - camera.position.y) * a;
-      camera.position.z += (cfg.position[2] - camera.position.z) * a;
+      const mouseDamp = isMobile ? 0 : 1;
+      camera.position.x += (cfg.position[0] + mouse.x * 0.3 * mouseDamp - camera.position.x) * a;
+      camera.position.y += (cfg.position[1] + mouse.y * 0.2 * mouseDamp - camera.position.y) * a;
+      camera.position.z += (cfg.position[2] + zExtra - camera.position.z) * a;
 
       _curLook.lerp(_look, aLook);
       camera.lookAt(_curLook);

@@ -2,9 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import { Text } from '@react-three/drei';
 import gsap from 'gsap';
 
-export function PhaseText({ phase, active, position }) {
+export function PhaseText({ phase, active, position, isMobile }) {
   const { label, period, title, lines, color } = phase;
   const allStrings = [label, title, ...lines];
+  const s = isMobile ? 0.72 : 1; // uniform scale factor for mobile
   const [counts, setCounts] = useState(() => allStrings.map(() => 0));
   const tlRef = useRef(null);
 
@@ -38,12 +39,15 @@ export function PhaseText({ phase, active, position }) {
 
   const [px, py, pz] = position;
 
+  const xOff  = isMobile ? -2.8 : 2.4;
+  const yTop  = isMobile ? 2.2  : 1.6;
+
   return (
     <group position={[px, py, pz]}>
       {/* Phase label */}
       <Text
-        position={[2.4, 1.6, 0]}
-        fontSize={0.12}
+        position={[xOff, yTop, 0]}
+        fontSize={0.12 * s}
         color={color}
         anchorX="left"
         letterSpacing={0.2}
@@ -51,21 +55,21 @@ export function PhaseText({ phase, active, position }) {
         {allStrings[0].slice(0, counts[0])}
       </Text>
 
-      {/* Period + Title */}
+      {/* Title */}
       <Text
-        position={[2.4, 1.28, 0]}
-        fontSize={0.2}
+        position={[xOff, yTop - 0.32 * s, 0]}
+        fontSize={0.2 * s}
         color="#ffffff"
         anchorX="left"
         letterSpacing={0.05}
-        maxWidth={7}
+        maxWidth={isMobile ? 5.5 : 7}
       >
         {allStrings[1].slice(0, counts[1])}
       </Text>
 
       {/* Divider line */}
-      <mesh position={[2.4 + 3.0, 1.04, 0]}>
-        <boxGeometry args={[6.0, 0.006, 0.01]} />
+      <mesh position={[xOff + 3.0 * s, yTop - 0.56 * s, 0]}>
+        <boxGeometry args={[6.0 * s, 0.006, 0.01]} />
         <meshBasicMaterial color={color} transparent opacity={0.35} />
       </mesh>
 
@@ -73,12 +77,12 @@ export function PhaseText({ phase, active, position }) {
       {lines.map((line, i) => (
         <Text
           key={i}
-          position={[2.4, 0.72 - i * 0.4, 0]}
-          fontSize={0.145}
+          position={[xOff, yTop - 0.88 * s - i * 0.4 * s, 0]}
+          fontSize={0.145 * s}
           color="#9999aa"
           anchorX="left"
           letterSpacing={0.02}
-          maxWidth={6.5}
+          maxWidth={isMobile ? 5.5 : 6.5}
         >
           {'› ' + allStrings[i + 2].slice(0, counts[i + 2])}
         </Text>

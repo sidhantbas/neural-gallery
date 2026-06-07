@@ -22,7 +22,7 @@ export const VISUAL_LABELS = {
   latentcloud: 'Latent Cloud (Noise)',
 };
 
-export function SceneContent({ phaseIndex, phases, nodePositions, onEnter }) {
+export function SceneContent({ phaseIndex, phases, nodePositions, onEnter, isMobile }) {
   return (
     <>
       {phases.map((phase, i) => {
@@ -31,7 +31,7 @@ export function SceneContent({ phaseIndex, phases, nodePositions, onEnter }) {
         return (
           <group key={phase.id}>
             <Visual position={nodePositions[i]} color={phase.color} />
-            <PhaseText phase={phase} active={isActive} position={nodePositions[i]} />
+            <PhaseText phase={phase} active={isActive} position={nodePositions[i]} isMobile={isMobile} />
             {isActive && (
               <EnterLabel
                 position={nodePositions[i]}

@@ -21,12 +21,13 @@ export function useDiveState(phases, orbitIndex, diving, setDiving) {
 
   useEffect(() => {
     if (!diving) return;
-    function onWheel(e) {
-      e.preventDefault();
+    const touchStartY = { current: null };
+    const MIN_SWIPE = 40;
+
+    function advance(forward) {
       if (lock.current) return;
-      if (Math.abs(e.deltaY) < MIN_DELTA) return;
       lock.current = true;
-      if (e.deltaY > 0) {
+      if (forward) {
         setBeatIndex(p => Math.min(p + 1, maxBeats - 1));
       } else {
         setBeatIndex(p => {
@@ -36,8 +37,33 @@ export function useDiveState(phases, orbitIndex, diving, setDiving) {
       }
       setTimeout(() => { lock.current = false; }, COOLDOWN);
     }
+
+    function onWheel(e) {
+      e.preventDefault();
+      if (Math.abs(e.deltaY) < MIN_DELTA) return;
+      advance(e.deltaY > 0);
+    }
+
+    function onTouchStart(e) {
+      touchStartY.current = e.touches[0].clientY;
+    }
+
+    function onTouchEnd(e) {
+      if (touchStartY.current === null) return;
+      const dy = touchStartY.current - e.changedTouches[0].clientY;
+      touchStartY.current = null;
+      if (Math.abs(dy) < MIN_SWIPE) return;
+      advance(dy > 0);
+    }
+
     window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
   }, [diving, maxBeats, setDiving]);
 
   useEffect(() => {

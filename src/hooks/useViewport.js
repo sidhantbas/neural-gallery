@@ -5,12 +5,14 @@ export function useViewport() {
     width: window.innerWidth,
     height: window.innerHeight,
     isMobile: window.innerWidth < 768,
+    isSmallMobile: window.innerWidth < 430,
   });
   useEffect(() => {
     const fn = () => setVp({
       width: window.innerWidth,
       height: window.innerHeight,
       isMobile: window.innerWidth < 768,
+      isSmallMobile: window.innerWidth < 430,
     });
     window.addEventListener('resize', fn);
     return () => window.removeEventListener('resize', fn);
