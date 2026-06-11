@@ -5,6 +5,7 @@ import { ChromaticAberrationEffect } from 'postprocessing';
 import { useSnapScroll }  from './hooks/useSnapScroll';
 import { useDiveState }   from './hooks/useDiveState';
 import { useViewport }    from './hooks/useViewport';
+import { useMusic }        from './hooks/useMusic';
 import { CameraRig }      from './components/CameraRig';
 import { SceneContent }   from './components/SceneContent';
 import { DiveScene }      from './components/DiveScene';
@@ -24,6 +25,7 @@ export default function App() {
   const dofRef                = useRef();
   const caRef                 = useRef(caEffect);
   const { isMobile, isSmallMobile } = useViewport();
+  const { muted, playing, toggleMute } = useMusic();
 
   const { nodePositions, cameraConfigs } = deriveLayout(phases);
 
@@ -90,6 +92,50 @@ export default function App() {
           />
         </EffectComposer>
       </Canvas>
+
+      {/* Now playing — click to mute/unmute */}
+      <button onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'} style={{
+        position:'fixed', bottom: isMobile ? 14 : 28, left: isMobile ? 14 : 28,
+        display:'flex', alignItems:'center', gap: isMobile ? 10 : 14,
+        background:'rgba(8,8,16,0.82)',
+        backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)',
+        border:'1px solid rgba(255,59,48,0.35)',
+        boxShadow:'0 0 28px rgba(255,59,48,0.15), inset 0 0 18px rgba(255,59,48,0.04)',
+        padding: isMobile ? '10px 14px' : '12px 18px',
+        cursor:'pointer', zIndex:200, textAlign:'left',
+        animation:'np-enter 1.4s cubic-bezier(0.16,1,0.3,1) 0.4s both',
+        WebkitTapHighlightColor:'transparent',
+      }}>
+        {/* Equalizer bars */}
+        <div style={{ display:'flex', alignItems:'flex-end', gap:3, height:16, width:21 }}>
+          {[0, 1, 2, 3].map(i => (
+            <span key={i} style={{
+              width:3, height:3, background:'#ff3b30', borderRadius:1,
+              boxShadow:'0 0 6px rgba(255,59,48,0.8)',
+              animation: playing && !muted
+                ? `np-eq ${0.7 + i * 0.13}s ease-in-out ${i * 0.15}s infinite alternate`
+                : 'none',
+            }} />
+          ))}
+        </div>
+        <div>
+          <div style={{
+            fontFamily:'"JetBrains Mono","Fira Code",monospace',
+            fontSize: isMobile ? 7 : 8, letterSpacing:'0.35em',
+            color:'#ff3b30', marginBottom:4,
+            animation: playing && !muted ? 'np-pulse 2.4s ease-in-out infinite' : 'none',
+          }}>
+            {muted ? '◼ PAUSED' : playing ? '▶ NOW PLAYING' : '▶ TAP TO PLAY'}
+          </div>
+          <div style={{
+            fontFamily:'"JetBrains Mono","Fira Code",monospace',
+            fontSize: isMobile ? 10 : 12, letterSpacing:'0.08em',
+            color:'rgba(255,255,255,0.92)',
+          }}>
+            AC/DC — Shoot to Thrill
+          </div>
+        </div>
+      </button>
 
       {/* Nav dots — hidden while diving or on mobile */}
       {!diving && !isMobile && (
