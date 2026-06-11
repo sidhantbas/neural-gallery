@@ -93,6 +93,53 @@ export default function App() {
         </EffectComposer>
       </Canvas>
 
+      {/* Identity — name + quote, orbit mode only */}
+      {!diving && (
+        <div style={{
+          position:'fixed', top: isMobile ? 16 : 36, left: isMobile ? 16 : 40,
+          zIndex:100, pointerEvents:'none',
+          maxWidth: isMobile ? 240 : 400,
+          fontFamily:'"JetBrains Mono","Fira Code",monospace',
+          animation:'np-enter 1.6s cubic-bezier(0.16,1,0.3,1) 0.2s both',
+        }}>
+          <div style={{
+            fontSize: isMobile ? 7 : 8, letterSpacing:'0.4em',
+            color: phase.color, marginBottom: 8,
+            transition:'color 0.6s',
+          }}>
+            ◈ PORTFOLIO
+          </div>
+          <div style={{
+            fontSize: isSmallMobile ? 16 : isMobile ? 18 : 26,
+            letterSpacing:'0.18em', fontWeight:700,
+            color:'rgba(255,255,255,0.95)',
+            textShadow:'0 0 24px rgba(255,255,255,0.25)',
+            marginBottom: isMobile ? 10 : 14,
+          }}>
+            SIDHANT BASTOLA
+          </div>
+          <div style={{
+            width: 36, height: 1,
+            background: phase.color, boxShadow:`0 0 8px ${phase.color}`,
+            marginBottom: isMobile ? 10 : 14,
+            transition:'background 0.6s, box-shadow 0.6s',
+          }} />
+          <div style={{
+            fontSize: isMobile ? 9 : 11, lineHeight: 1.7,
+            letterSpacing:'0.04em', fontStyle:'italic',
+            color:'rgba(255,255,255,0.55)',
+          }}>
+            “the only true test of intelligence is if you get what you want out of life.”
+          </div>
+          <div style={{
+            fontSize: isMobile ? 8 : 9, letterSpacing:'0.25em',
+            color:'rgba(255,255,255,0.35)', marginTop: 6,
+          }}>
+            — NAVAL RAVIKANT
+          </div>
+        </div>
+      )}
+
       {/* Now playing — click to mute/unmute */}
       <button onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'} style={{
         position:'fixed', bottom: isMobile ? 14 : 28, left: isMobile ? 14 : 28,
